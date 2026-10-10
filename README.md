@@ -37,20 +37,7 @@ emem splits the job in two.
 - **Encoding happens at the source, and stays private.** A satellite, a drone, a camera, a robot, a lab or a company's file server hashes what it holds into units and signs a small record under its own key. The bytes do not have to leave. What leaves is a commitment to them: a content id, a Merkle root, a signature.
 - **emem is the decoding half.** Any model, in Claude, in ChatGPT or in your own code, resolves a short token back to that exact record, checks who signed it, and proves that one unit belongs to the whole, without trusting the sender, and without trusting emem.
 
-```mermaid
-flowchart LR
-  subgraph SRC["Where the data lives: encode, private"]
-    direction TB
-    A["satellite in orbit"]
-    B["drone, camera, robot"]
-    C["documents, datasets, model weights"]
-    D["your own algorithm"]
-  end
-  SRC -- "signed record + token<br/>(the bytes stay)" --> M[("emem<br/>shared memory<br/>+ witnessed log")]
-  M -- "resolve, verify" --> E["Claude"]
-  M -- "resolve, verify" --> F["ChatGPT"]
-  M -- "resolve, verify" --> G["any model, any agent"]
-```
+<p align="center"><img src="docs/media/readme/20-encode-decode.webp" alt="Three panels. Your data: files, machines and archives, with source files kept local. Each sends a signed record into shared memory, where records link by identity, history and derivations. Any AI, whether Claude, ChatGPT or your own agent, resolves the same record and verifies it. Caption: one reference, the same record, checked independently." width="880"></p>
 
 Two agents handed the same token read the same signed bytes, on any vendor's model, months apart. That is the whole idea: **one thing has one identity, one observation has one signed record, and the record, not a paraphrase of it, is what crosses between machines.**
 
@@ -426,13 +413,14 @@ Issues and pull requests welcome: [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.
 
 
 
+
 ## Content address
 
-Every section above this one is a unit of one signed tree: `emem:tree:gpzjzeduxgz3w2roa3ct4bgl7e`, root `miy7i65vxezlxjiy3hggiagokc7b5dbnxgidpqgeyffw6meyeuqa`, published under the key `k572x7go`. A single section is `emem:tree:gpzjzeduxgz3w2roa3ct4bgl7e#row=<i>`, so another agent can cite one part of this file and anyone can prove it was in the file as published:
+Every section above this one is a unit of one signed tree: `emem:tree:pp7jww4fgorza7zeru2ak35mf4`, root `wwhnpaz2tbmbui4wesgo4wfjmq7jry3l77zofnzugmoaow7352ba`, published under the key `k572x7go`. A single section is `emem:tree:pp7jww4fgorza7zeru2ak35mf4#row=<i>`, so another agent can cite one part of this file and anyone can prove it was in the file as published:
 
 ```bash
-curl -s "https://emem.dev/v1/tree/gpzjzeduxgz3w2roa3ct4bgl7e?row=3" > row.json
+curl -s "https://emem.dev/v1/tree/pp7jww4fgorza7zeru2ak35mf4?row=3" > row.json
 python3 plugins/emem/skills/emem-tokenise-files/scripts/tree_proof.py check row.json index.md README.md
 ```
 
-`index.md` is the signed note at [`/memories/by_attester/k572x7go/readme/tree-20261010c.md`](https://emem.dev/memories/by_attester/k572x7go/readme/tree-20261010c.md). The tree changes whenever the README does, and this section is left out of it because it names the tree.
+`index.md` is the signed note at [`/memories/by_attester/k572x7go/readme/tree-20261010d.md`](https://emem.dev/memories/by_attester/k572x7go/readme/tree-20261010d.md). The tree changes whenever the README does, and this section is left out of it because it names the tree.
