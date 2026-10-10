@@ -18,8 +18,10 @@ There are **four distinct integration paths**, pursue them in priority order.
 
 **Verify the extension manifest is live before starting:**
 ```bash
-curl -s https://emem.dev/gemini-extension.json | jq '{name, version, transport: .mcpServers.emem.transport}'
-# Expected: { name: "emem", version: "2.1.0", transport: "streamable-http" }
+curl -s https://raw.githubusercontent.com/Vortx-AI/emem/main/gemini-extension.json | jq '{name, version, url: .mcpServers.emem.httpUrl}'
+# Expected: { name: "emem", version: "2.4.2", url: "https://emem.dev/mcp" }
+# The installable manifest is the one at the repo root; Gemini CLI installs
+# from a git repository or a local path, never from a JSON URL.
 ```
 
 ---
@@ -42,7 +44,7 @@ Add this line in the Data & Analytics section of the README:
 ```markdown
 - [emem](https://emem.dev/gemini-extension.json) — Signed, cite-able Earth memory.
   Recall air quality, vegetation, flood, fire, elevation facts for any place.
-  No API key to read. Install: `gemini extensions install https://emem.dev/gemini-extension.json`
+  No API key to read. Install: `gemini extensions install https://github.com/Vortx-AI/emem`
 ```
 
 **B. `Piebald-AI/awesome-gemini-cli`**
@@ -63,7 +65,7 @@ The official org (`github.com/gemini-cli-extensions`) requires Google to invite 
 ## Extension: emem
 
 **Install command:**
-gemini extensions install https://emem.dev/gemini-extension.json
+gemini extensions install https://github.com/Vortx-AI/emem
 
 **Manifest:** https://emem.dev/gemini-extension.json
 
@@ -91,7 +93,7 @@ agricultural monitoring, multi-agent coordination, audit-grade reporting.
 Before any submission, confirm this works in a live Gemini CLI session:
 
 ```bash
-gemini extensions install https://emem.dev/gemini-extension.json
+gemini extensions install https://github.com/Vortx-AI/emem
 # Then in a gemini session:
 # > What is the current air quality in Delhi?
 # Should call emem_locate then emem_recall and return a signed fact.
@@ -200,7 +202,7 @@ The notebook should show:
 
 | Priority | Action | Time | Blocker |
 |---|---|---|---|
-| 0 | Verify `gemini extensions install https://emem.dev/gemini-extension.json` works | 10 min | None |
+| 0 | Verify `gemini extensions install https://github.com/Vortx-AI/emem` works | 10 min | None |
 | 0 | PR to `Piebald-AI/awesome-gemini-cli-extensions` | 15 min | None |
 | 0 | PR to `Piebald-AI/awesome-gemini-cli` | 10 min | None |
 | 0 | Apply Google for Startups | 30 min | None |

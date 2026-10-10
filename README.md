@@ -196,7 +196,7 @@ geo.qa's agent re-derived a Doha road fact from the public bytes it cited and re
 |---|---|
 | **In a chat** | the [emem app in ChatGPT](https://chatgpt.com/plugins/plugin_asdk_app_6a6a0832a59081918b19aec0ddf9ec77) (mention `@emem`), and emem in the Claude directory. Ask about a place, a file or a token and get answers grounded in signed records. |
 | **In Claude Code** | the [plugin](plugins/emem/), the MCP server plus nineteen skills: `/plugin marketplace add Vortx-AI/emem`, then `/plugin install emem@emem`. |
-| **In an IDE or MCP host** | Claude Desktop, Cursor, Cline, VS Code and Copilot, Gemini CLI (`gemini extensions install https://emem.dev/gemini-extension.json`): one endpoint, `https://emem.dev/mcp`. Per-host configs: [connect a client](https://emem.dev/reference#client-setup). |
+| **In an IDE or MCP host** | Claude Desktop, Cursor, Cline, VS Code and Copilot, Gemini CLI (`gemini extensions install https://github.com/Vortx-AI/emem`): one endpoint, `https://emem.dev/mcp`. Per-host configs: [connect a client](https://emem.dev/reference#client-setup). |
 | **In a workflow tool** | the verified [Dify plugin](https://marketplace.dify.ai/plugin/vortx-ai/emem). |
 | **In code** | the [Python](https://pypi.org/project/ememdev/) and [TypeScript](https://www.npmjs.com/package/@vortxai/emem) clients, REST ([OpenAPI](https://emem.dev/openapi.json)), and [examples](examples/) for LangChain, LlamaIndex, CrewAI, AutoGen, Agno and Mastra. |
 | **Agent to agent** | [A2A](https://emem.dev/a2a): read the [agent card](https://emem.dev/.well-known/agent-card.json), send a task, verify the signed result. |

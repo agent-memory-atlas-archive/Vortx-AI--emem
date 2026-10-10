@@ -1,0 +1,11 @@
+{
+  "name": "emem",
+  "version": "2.4.2",
+  "description": "Shared, verifiable memory for machines and AI. Encode where the data lives, decode with any AI: resolve emem tokens to signed records and check them offline. No API key to read.",
+  "mcpServers": {
+    "emem": {
+      "httpUrl": "https://emem.dev/mcp"
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}

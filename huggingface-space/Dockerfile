@@ -11,7 +11,7 @@
 # Bump it deliberately when you want the next release pulled:
 #   docker buildx imagetools inspect ghcr.io/vortx-ai/emem:latest
 
-FROM ghcr.io/vortx-ai/emem@sha256:2cdce24780ad197d0433e5f01190a14ed7a1544585aed45013b20a8935ab4d8c
+FROM ghcr.io/vortx-ai/emem@sha256:c6e3bb00fcb76a6a43d222f78945b516feb9f519d23c40b9629a1165cfee712c
 
 # HuggingFace runs Spaces as UID 1000 (`user`) — re-grant the runtime data
 # directory and the binary's net-bind capability for that user.

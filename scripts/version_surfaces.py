@@ -86,6 +86,8 @@ def surfaces(version: str, crates: int):
          "the llama-index tool spec, unpublished but versioned"),
         ("sdks/emem-ts/package.json", r'"version":\s*"([0-9]+\.[0-9]+\.[0-9]+)"', version,
          "the published TypeScript client"),
+        ("gemini-extension.json", r'"version":\s*"([0-9]+\.[0-9]+\.[0-9]+)"', version,
+         "the Gemini CLI extension, installed from the repo root"),
         ("CITATION.cff", r"^version:\s*([0-9]+\.[0-9]+\.[0-9]+)\s*$", version,
          "the version citations are minted against"),
         ("AGENTS.md", r"version ([0-9]+\.[0-9]+\.[0-9]+), MSRV", version,

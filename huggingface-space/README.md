@@ -1,5 +1,5 @@
 ---
-title: emem — Earth memory protocol (MCP server)
+title: emem, shared verifiable memory (MCP server)
 emoji: 🌍
 colorFrom: blue
 colorTo: green
@@ -10,6 +10,7 @@ license: apache-2.0
 short_description: 'Verifiable memory for AI agents, checkable offline'
 tags:
   - mcp
+  - mcp-server
   - geospatial
   - earth-observation
   - ai-agents
@@ -24,24 +25,26 @@ models: []
 datasets: []
 ---
 
-# emem: verifiable memory for AI agents
+# emem: shared, verifiable memory for machines and AI
 
-This Space hosts the **emem MCP server**: a shared, verifiable memory of the
-physical world. Every place resolves to one signed, content-addressed fact an
-agent can cite as an 84-character token, and anyone can re-check the ed25519
-receipt offline. Connect from Claude Desktop, Cursor, Cline, or any
-MCP-compatible agent.
+This Space runs an **emem node**, the same binary as [emem.dev](https://emem.dev).
+Encode where the data lives, decode with any AI: sources sign small records of
+what they hold and the bytes stay put, while any model resolves a short token
+back to the exact signed record and checks it offline with ed25519.
 
 ## What this Space gives you
 
-- A live MCP JSON-RPC 2.0 endpoint at `${SPACE_URL}/mcp`.
-- A REST + OpenAPI 3.1 surface at `${SPACE_URL}/v1/...`.
-- The same tool surface as [emem.dev](https://emem.dev): 94 MCP tools,
-  124 wired Earth-observation measurements across 43 cube slots, and 162
-  composition algorithms (live counts at `/v1/agent_card`).
-- Multimodal MCP content blocks: true-colour Sentinel-2 RGB scenes,
-  GeoJSON cell polygons, live SVG coverage maps.
-- No keys for L0/L1 reads. Apache-2.0. Pure Rust.
+- A live MCP endpoint at `${SPACE_URL}/mcp` (Streamable HTTP).
+- A REST and OpenAPI 3.1 surface at `${SPACE_URL}/v1/...`.
+- The same tool surface as emem.dev: 115 MCP tools, 115 wired measurements
+  from open Earth archives, and 168 composition algorithms (live counts at
+  `/v1/agent_card`).
+- No key to read. Apache-2.0. Pure Rust.
+
+The hosted node at `https://emem.dev/mcp` is the one most agents use; it is
+also listed in ChatGPT, the Claude directory, the official MCP Registry and the
+GitHub MCP Registry. Install guides for every host:
+[emem.dev/reference#client-setup](https://emem.dev/reference#client-setup).
 
 ## How to connect
 
@@ -66,7 +69,7 @@ Add this to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 See the paste-ready configs in the
 [examples directory](https://github.com/Vortx-AI/emem/tree/main/examples)
-of the upstream repo — swap the `url` field to point at this Space.
+of the upstream repo, and swap the `url` field to point at this Space.
 
 ### curl
 
@@ -91,16 +94,16 @@ curl -s https://YOUR-SPACE.hf.space/v1/locate \
 | `POST /v1/locate`                 | Geocode → cell64                                            |
 | `POST /v1/find_similar`           | Embedding-space neighbour search                            |
 | `POST /v1/intent`                 | Free-text question → plan                                   |
-| `POST /v1/algorithms`             | Browse the 162-recipe registry                              |
+| `GET /v1/algorithms`              | Browse the composition-recipe registry                      |
 | `GET /v1/cells/:cell/scene.png`   | Sentinel-2 L2A 256×256 RGB thumbnail                        |
 | `GET /v1/coverage_map.svg`        | Live world map of attested cells                            |
 
 ## Privacy & verification
 
 Every read returns a signed receipt with the responder's ed25519 public key,
-the request canonicalisation hash, and the fact CIDs — verifiable offline by
+the request canonicalisation hash, and the fact CIDs, verifiable offline by
 any client. The pubkey is at `/.well-known/emem.json`.
 
 ## Source code
 
-[github.com/Vortx-AI/emem](https://github.com/Vortx-AI/emem) — Apache-2.0.
+[github.com/Vortx-AI/emem](https://github.com/Vortx-AI/emem), Apache-2.0.

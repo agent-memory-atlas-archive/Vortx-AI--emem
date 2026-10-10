@@ -335,7 +335,7 @@ require no keys.
 | Cursor 0.42+ | `.cursor/mcp.json`: `{ "mcpServers": { "emem": { "url": "https://emem.dev/mcp" } } }` |
 | Claude Desktop | Same JSON in `claude_desktop_config.json` (macOS / Linux / Windows paths) |
 | Cline (VS Code) | Same JSON via MCP Settings; add `"autoApprove": [...]` for read-only tools |
-| Gemini CLI | `gemini extensions install https://emem.dev/gemini-extension.json` |
+| Gemini CLI | `gemini extensions install https://github.com/Vortx-AI/emem` |
 | OpenAI custom GPT | GPT builder → Actions → Import from URL → `https://emem.dev/openapi.json` |
 | Plain HTTP | `POST /v1/...` directly; the MCP layer is a convenience wrapper |
 

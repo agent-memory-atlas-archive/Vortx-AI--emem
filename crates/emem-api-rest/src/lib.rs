@@ -1171,9 +1171,10 @@ pub fn router(state: AppState) -> Router {
             get(serve_example_openai),
         )
         .route("/examples/gemini-extension.json", get(serve_example_gemini))
-        // Top-level alias so `gemini extensions install
-        // https://emem.dev/gemini-extension.json` works without the
-        // examples/ prefix.
+        // Gemini CLI installs from a git repository or a local path, never
+        // from a JSON URL: the installable manifest is gemini-extension.json
+        // at the repo root. This copy is for reading and for hosts that
+        // fetch a manifest by URL.
         .route("/gemini-extension.json", get(serve_example_gemini))
         .route("/examples/langchain.py", get(serve_example_langchain))
         .route("/examples/llamaindex.py", get(serve_example_llamaindex))
@@ -8097,7 +8098,7 @@ async fn serve_example_gemini() -> Response {
     let n_algorithms = emem_core::algorithms::DEFAULT.algorithms.len();
     let manifest = json!({
         "_doc": format!(
-            "Gemini CLI extension manifest. Install with one command: `gemini extensions install https://emem.dev/gemini-extension.json`. After install, every Gemini CLI session can call emem_recall, emem_compare, emem_find_similar, emem_memory_bundle, emem_memory_contradictions, etc. against any place on Earth without an API key. The hosted instance at https://emem.dev/mcp is HTTPS-only Streamable HTTP transport (MCP 2025-03-26+). For self-hosted, change `url` to your own emem responder. Counts ({}/{}/{}) are rendered from the live registry at request time.",
+            "Gemini CLI extension manifest. Install with one command: `gemini extensions install https://github.com/Vortx-AI/emem`. After install, every Gemini CLI session can call emem_recall, emem_compare, emem_find_similar, emem_memory_bundle, emem_memory_contradictions, etc. against any place on Earth without an API key. The hosted instance at https://emem.dev/mcp is HTTPS-only Streamable HTTP transport (MCP 2025-03-26+). For self-hosted, change `httpUrl` to your own emem responder. Counts ({}/{}/{}) are rendered from the live registry at request time.",
             n_tools, n_bands, n_algorithms,
         ),
         "name": "emem",
@@ -8130,8 +8131,7 @@ async fn serve_example_gemini() -> Response {
         ],
         "mcpServers": {
             "emem": {
-                "url": "https://emem.dev/mcp",
-                "transport": "streamable-http",
+                "httpUrl": "https://emem.dev/mcp",
                 "description": "Shared, verifiable memory for AI agents: recall signed facts, cite them as emem: tokens, verify receipts offline; compare, diff, and trajectory read the same memory."
             }
         },
