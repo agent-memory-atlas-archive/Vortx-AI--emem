@@ -96,7 +96,7 @@ except ImportError:
 # audited without anyone remembering to add it here.
 FALLBACK_PAGES = [
     "/", "/how-it-works", "/solutions", "/whitepaper", "/whitepaper/v1",
-    "/demos", "/demos/signed-answer", "/demos/state-cube", "/demos/trajectory",
+    "/demos", "/demos/signed-answer", "/demos/handoff", "/demos/field",
     "/worlds", "/scoreboard", "/gallery", "/verify", "/guard", "/agents",
     "/reference", "/a2a", "/tools", "/card", "/404-does-not-exist",
 ]

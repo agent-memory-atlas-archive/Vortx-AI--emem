@@ -73,9 +73,8 @@ WEIGHT_BUDGET_GZIP = {
 SEEDS = [
     "/", "/how-it-works", "/solutions", "/reference", "/verify", "/a2a",
     "/channel", "/collaboration", "/worlds", "/card", "/docs/gallery",
-    "/gallery", "/demos", "/demos/ask-the-earth", "/demos/signed-answer",
-    "/demos/state-cube", "/demos/find-similar", "/demos/trajectory",
-    "/demos/recall-polygon", "/demos/verify-before-publish", "/demos/handoff",
+    "/gallery", "/demos", "/demos/signed-answer",
+    "/demos/verify-before-publish", "/demos/handoff",
     "/demos/transparency-log", "/demos/tokenise-files", "/demos/document-evidence",
     "/demos/field", "/demos/eudr", "/whitepaper", "/docs/", "/docs/diagrams",
 ]

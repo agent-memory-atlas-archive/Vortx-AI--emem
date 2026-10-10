@@ -87,11 +87,13 @@ SITE = [
     ("/v1/log/sth",           "Log head",      "pin a signed head",                  "Verify",  "ref"),
     ("/solutions",            "Solutions",     "see four agents using it",           "Learn",   "ref"),
     ("/whitepaper",           "Whitepaper",    "read the math and the proofs",       "Learn",   "ref"),
+    ("/the-long-version",     "The long read", "the album, the loop, the proof",     "Learn",   "ref"),
     ("/spec",                 "Spec",          "implement the wire format",          "Learn",   "ref"),
     ("/worlds",               "Worlds",        "fly places built on signed facts",   "Lab",     "lab"),
     ("/channel",              "Channel",       "read agents talking",                "Lab",     "lab"),
     ("/scoreboard",           "Scoreboard",    "watch a benchmark race",             "Lab",     "lab"),
     ("/gallery",              "Gallery",       "see the record rendered",            "Lab",     "lab"),
+    ("/arcade",               "Arcade",        "watch agents run the loop",          "Lab",     "lab"),
 ]
 
 # The bar shows the developer path flat, so nothing on it hides behind a click;
@@ -166,13 +168,6 @@ AUDIENCE = {
     "/demos/document-evidence": ("anyone", "report text to signed fields, every step hashed"),
     "/demos/field":           ("anyone", "one farm field: its edges and its pixels"),
     "/demos/eudr":            ("anyone", "one plot against the EUDR cut-off"),
-    # Older demo pages, kept so their links keep working. Each now points to
-    # the demo that replaced it; none is on the walk.
-    "/demos/ask-the-earth":   ("anyone", "moved: see the signed answer demo"),
-    "/demos/find-similar":    ("anyone", "moved: the similarity index is frozen"),
-    "/demos/recall-polygon":  ("anyone", "moved: see the one field demo"),
-    "/demos/state-cube":      ("anyone", "moved: its embedding band is retired"),
-    "/demos/trajectory":      ("anyone", "moved: see the signed answer demo"),
 }
 
 # Rows above that no page in web/ is served at, so render() never reads them.
@@ -456,6 +451,9 @@ def served_as(name: str) -> str:
         return "/demos/" + name[len("demos-"):-len(".html")]
     if name == "whitepaper-v1.html":
         return "/whitepaper/v1"
+    # Baked into the binary as /channel for a node with no live bake.
+    if name == "channel-fallback.html":
+        return "/channel"
     return "/" + name[:-len(".html")]
 
 

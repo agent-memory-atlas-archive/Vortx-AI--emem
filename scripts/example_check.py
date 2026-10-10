@@ -46,7 +46,7 @@ import sys
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 
-SOURCES = ["docs/**/*.md", "web/*.html", "SKILL.md", "README.md", "AGENTS.md"]
+SOURCES = ["docs/**/*.md", "web/*.html", "SKILL.md", "README.md", "AGENTS.md", "examples/**/*.md"]
 
 # Files that record what a call looked like ON A DATE, or reproduce another
 # agent's signed words. Rewriting or re-running those is not a check, it is

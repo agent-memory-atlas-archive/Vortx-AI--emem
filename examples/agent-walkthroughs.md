@@ -1,173 +1,130 @@
 # Agent walkthroughs
 
-Real-world questions an AI agent might receive, and the exact emem calls
-to answer them. All examples target `https://emem.dev`. Replace with your
-own responder URL when self-hosting.
+Questions an AI agent gets, and the emem calls that answer them. Every call
+targets `https://emem.dev`; swap in your own node's URL when self-hosting.
+Each command below is run against production by CI, so if one stops working
+the build fails rather than the reader.
 
-## 1. "What's at lat/lng X, Y?"
+Cells are written out literally so each block runs on its own. In your own
+code, take the `cell64` from the `locate` call before it.
 
-User: *"Tell me what's at 35.36°N, 138.73°E."*
+## 1. "What's at 35.36°N, 138.73°E?"
 
 ```bash
-# step 1 — bridge lat/lng to cell64
+# lat/lng to the one cell64 every agent resolves identically
 curl -s -X POST https://emem.dev/v1/locate \
   -H 'content-type: application/json' \
   -d '{"lat":35.3606,"lng":138.7274}' | jq -r '.cell64'
-# → damO.zb000.xUti.zde78
+# defi.zb592.nemu.zEvE
 
-# step 2 — recall everything emem knows about that cell
+# the signed facts there, fetched and signed on a miss
 curl -s -X POST https://emem.dev/v1/recall \
   -H 'content-type: application/json' \
-  -d '{"cell":"damO.zb000.xUti.zde78"}' | jq
-
-# step 3 — cite the receipt
-# In your reply: "According to emem.dev (cid64 = ...), …"
+  -d '{"cell":"defi.zb592.nemu.zEvE","bands":["copdem30m.elevation_mean"]}' | jq '.facts[0] | {value, unit, memory_token}'
 ```
 
-In the reply: include `receipt.fact_cids[0]` (truncated cid64) and mention
-`responder_pubkey_b32` once per session so users can audit.
+Cite the `memory_token`, not the number alone: anyone can resolve it to the
+same signed bytes and check the receipt offline.
 
-## 2. "Where is X?"
-
-User: *"Get me the elevation profile near Mount Everest base camp."*
+## 2. "How high is Mount Everest?"
 
 ```bash
-# step 1 — place name → cell64 via OSM Nominatim
-curl -s -X POST https://emem.dev/v1/locate \
-  -H 'content-type: application/json' \
-  -d '{"place":"Mount Everest base camp"}' | jq
-
-# step 2 — recall + filter by elevation band(s)
 curl -s -X POST https://emem.dev/v1/recall \
   -H 'content-type: application/json' \
-  -d '{"cell":"<cell64-from-step-1>","bands":["copdem30m.provenance","copdem30m.byte_histogram_v1"]}' | jq
+  -d '{"place":"Mount Everest","bands":["copdem30m.elevation_mean"]}' | jq '.facts[0] | {cell, value, unit}'
 ```
 
-If recall returns no facts for the band, an agent contributor (perhaps
-yourself) should compute the value from the open-data tile and submit a
-signed attestation — see `docs/CONTRIBUTORS.md`.
+`recall` takes a `place` directly. A place name resolves to one 10 m cell, and
+a name it cannot resolve confidently is refused with the reason rather
+than guessed; for an area, use section 7.
 
-## 3. "How similar is X to Y?"
-
-User: *"How similar is the climate regime at Madrid to Lisbon?"*
+## 3. "Is Everest base camp above 5,000 m?"
 
 ```bash
-# Resolve both places to cells.
-M=$(curl -s -X POST https://emem.dev/v1/locate \
-     -H 'content-type: application/json' \
-     -d '{"place":"Madrid, Spain"}' | jq -r .cell64)
-L=$(curl -s -X POST https://emem.dev/v1/locate \
-     -H 'content-type: application/json' \
-     -d '{"place":"Lisbon, Portugal"}' | jq -r .cell64)
-
-# Compare on a specific band family.
-curl -s -X POST https://emem.dev/v1/compare \
-  -H 'content-type: application/json' \
-  -d "{\"a\":\"$M\",\"b\":\"$L\",\"family\":\"geotessera\"}" | jq
-```
-
-Read `cosine` (overall) and `per_band` (decomposition). Cite both, plus
-`receipt.fact_cids`.
-
-## 4. "Find places like X"
-
-User: *"Find five cells most similar to my farm at 41.5°N, -93.5°W."*
-
-```bash
-F=$(curl -s -X POST https://emem.dev/v1/locate \
-     -H 'content-type: application/json' \
-     -d '{"lat":41.5,"lng":-93.5}' | jq -r .cell64)
-
-curl -s -X POST https://emem.dev/v1/find_similar \
-  -H 'content-type: application/json' \
-  -d "{\"key\":\"$F\",\"k\":5,\"band\":\"geotessera\"}" | jq
-```
-
-For each neighbour, you can call `GET /v1/cells/<cell64>/info` to get a
-human-readable lat/lng + bbox.
-
-## 5. "What changed at X between t1 and t2?"
-
-User: *"What changed at this rainforest site between 2024 and 2025?"*
-
-```bash
-# Pick the cell.
-C=$(curl -s -X POST https://emem.dev/v1/locate \
-     -H 'content-type: application/json' \
-     -d '{"place":"Manaus, Brazil"}' | jq -r .cell64)
-
-curl -s -X POST https://emem.dev/v1/diff \
-  -H 'content-type: application/json' \
-  -d "{\"cell\":\"$C\",\"band\":\"geotessera\",\"tslot_a\":11,\"tslot_b\":12}" | jq
-```
-
-The response is a signed Derivative fact with `op=delta` and
-`parents=[<cidA>,<cidB>]` — full provenance.
-
-## 6. "Verify a claim about X"
-
-User: *"Is the elevation here above 4000 m?"*
-
-```bash
-C=$(curl -s -X POST https://emem.dev/v1/locate \
-     -H 'content-type: application/json' \
-     -d '{"place":"Mont Blanc, France"}' | jq -r .cell64)
-
 curl -s -X POST https://emem.dev/v1/verify \
   -H 'content-type: application/json' \
-  -d "{\"cell\":\"$C\",\"claim\":{\"band\":\"copdem30m.elevation_mean\",\"op\":\"gt\",\"value\":4000.0,\"tslot\":0}}" | jq
+  -d '{"cell":"defi.zb53e.wUdA.rIhe","claim":{"band":"copdem30m.elevation_mean","op":"gt","value":5000.0,"tslot":0}}' | jq '{verdict, evidence}'
 ```
 
-Returns `verdict: true|false|unknown` plus signed evidence CIDs.
+`verdict` is `true`, `false` or `unknown`, with the signed evidence it rested
+on. `unknown` means no fact was found, which is not the same as `false`.
 
-## 7. "Region statistics"
+## 4. "How does Madrid differ from Lisbon?"
 
-User: *"Average forest cover across these four cells?"*
+```bash
+curl -s -X POST https://emem.dev/v1/compare \
+  -H 'content-type: application/json' \
+  -d '{"a":"defi.zb5cb.zda5f.nEqI","b":"defi.zb5b8.qIgO.pIho"}' | jq '{shared_bands, per_band}'
+```
+
+`compare` works over the bands both cells already hold, and says which bands
+only one side has (`only_a`, `only_b`). Recall the bands you care about at both
+cells first if `shared_bands` comes back short.
+
+## 5. "Find places like my farm"
+
+```bash
+curl -s -X POST https://emem.dev/v1/find_similar \
+  -H 'content-type: application/json' \
+  -d '{"key":"defi.zb5d8.hAgU.pIxO","k":5}' | jq '.neighbors[] | {cell, band_used}'
+```
+
+Each neighbour names the band the similarity was computed on. Read
+`interpretation` before you say two places are alike.
+
+## 6. "How has this plot changed over the last two seasons?"
+
+```bash
+curl -s -X POST https://emem.dev/v1/field_series \
+  -H 'content-type: application/json' \
+  -d '{"geometry":{"type":"Polygon","coordinates":[[[-5.3012,6.8501],[-5.2988,6.8501],[-5.2988,6.8524],[-5.3012,6.8524],[-5.3012,6.8501]]]},"index":"ndvi","start_date":"2025-01-01","end_date":"2026-09-30"}' | jq '{rows: (.rows | length), anomaly, cautions}'
+```
+
+One signed series over the area: per-scene distributions, an anomaly against
+the area's own history, and a change map. `emem_intent` with
+`type: "area_over_time"` routes here from a plain question.
+
+## 7. "What's the average across these places?"
 
 ```bash
 curl -s -X POST https://emem.dev/v1/query_region \
   -H 'content-type: application/json' \
-  -d '{"geometry":"cells:c0,c1,c2,c3","bands":["gfc.canopy_cover_2020"],"agg":"mean"}' | jq
+  -d '{"geometry":"cells:defi.zb5cb.zda5f.nEqI,defi.zb5b8.qIgO.pIho","bands":["copdem30m.elevation_mean"],"agg":"mean"}' | jq '.aggregates'
 ```
+
+For a named area rather than a list of cells, `POST /v1/recall_polygon` and
+`POST /v1/grid` sample the area and aggregate in one call.
 
 ## 8. "I don't know what to call"
 
-User: *"How is this place doing?"* (vague)
-
 ```bash
-curl -s -X POST https://emem.dev/v1/intent \
+curl -s -X POST https://emem.dev/v1/ask \
   -H 'content-type: application/json' \
-  -d '{"type":"how_is_here","cell":"<cell64>"}' | jq
+  -d '{"q":"how is the vegetation doing around Manaus?"}' | jq '{answer, receipt: .receipt.fact_cids}'
 ```
 
-`/v1/intent` returns a planner output telling the agent which primitives
-to call in which order — discoverable, not hardcoded.
+`ask` routes a plain-language question and returns a signed answer with the
+facts it read. Over MCP, `emem_tools` searches the full catalogue when the
+tool you need is not in your list.
 
-## When to call what — at-a-glance
+## When to call what
 
-| user question form                              | first call             | then                  |
-|-------------------------------------------------|------------------------|-----------------------|
-| "lat/lng …"                                     | `/v1/locate`           | `/v1/recall`           |
-| "place name …"                                  | `/v1/locate`           | `/v1/recall`           |
-| "what changed at X"                             | `/v1/locate`           | `/v1/diff`             |
-| "what's it like over time?"                     | `/v1/locate`           | `/v1/trajectory`       |
-| "how similar is X to Y?"                        | `/v1/locate` × 2       | `/v1/compare`          |
-| "find places like X"                            | `/v1/locate`           | `/v1/find_similar`     |
-| "is X true at Y?"                               | `/v1/locate`           | `/v1/verify`           |
-| "region average / median / p90"                 | `/v1/locate` × N       | `/v1/query_region`     |
-| "what's at this cell64 directly?"               | `/v1/recall`           | —                     |
-| "I have facts to add"                           | `/v1/attest_cbor`      | —                     |
-| "audit a receipt I got"                         | `/v1/verify_receipt`   | —                     |
-| "what does emem provide?"                       | `/v1/agent_card`       | `/v1/quickstart`       |
+| The question | First call | Then |
+|---|---|---|
+| a lat/lng or a place name | `/v1/locate` | `/v1/recall` |
+| "is X true here?" | `/v1/verify` | |
+| "how does X differ from Y?" | `/v1/recall` at both | `/v1/compare` |
+| "find places like X" | `/v1/find_similar` | `/v1/recall` at a neighbour |
+| "how has this area changed?" | `/v1/field_series` | |
+| "what changed between two dates at one cell?" | `/v1/intent` with `did_change` | `/v1/diff` |
+| "the average over these places" | `/v1/query_region` | |
+| "I don't know" | `/v1/ask` | |
+| "check what someone handed me" | `/v1/memory_token/resolve` | `/v1/verify_receipt` |
 
 ## In your reply
 
-When you cite emem in a user-facing answer:
-
-1. Quote the user-relevant fact (elevation, land-cover, similarity score,
-   etc.).
-2. Add a parenthetical like `(emem cid64=l5ilpuhc, responder=777er3yi)`
-   with the truncated `cid64` and `responder_pubkey_b32` prefix so the
-   user can audit.
-3. Optionally mention `via emem.dev` once per session — agents that build
-   on a verifiable corpus get to take credit for it.
+1. State the fact the user asked about.
+2. Cite its `emem:fact:` token, or one `emem:bundle:` line for several, so the
+   reader can check it without trusting you.
+3. Say what the check does not prove: a signature says who signed, not that
+   the value is right.

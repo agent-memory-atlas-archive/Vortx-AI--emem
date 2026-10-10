@@ -100,7 +100,7 @@ If you want to author the envelope yourself, the wire shape accepted by
   "facts": [
     {
       "kind": "primary",
-      "cell": "damO.zb000.xUti.zde78",
+      "cell": "defi.zb592.nemu.zEvE",
       "band": "indices.ndvi",
       "tslot": 1704067200,
       "value": 0.81,                     // attester A's reading
@@ -162,7 +162,7 @@ Response shape:
 {
   "contradictions": [
     {
-      "cell":  "damO.zb000.xUti.zde78",
+      "cell":  "defi.zb592.nemu.zEvE",
       "band":  "indices.ndvi",
       "tslot": 1704067200,
       "severity": 0.61,            // scalar band: spread over the band's range
@@ -252,7 +252,7 @@ recall receipt's signature, so the attachment is itself verifiable.
 ```bash
 curl -sS -X POST "$EMEM/v1/recall" \
   -H 'content-type: application/json' \
-  -d '{"cell":"damO.zb000.xUti.zde78","band":"indices.ndvi","include":["edges"]}' \
+  -d '{"cell":"defi.zb592.nemu.zEvE","band":"indices.ndvi","include":["edges"]}' \
   | jq '{facts: [.facts[].value], edges: .edges}'
 ```
 

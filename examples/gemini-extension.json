@@ -47,19 +47,17 @@
       "name": "Recall elevation at a cell",
       "tool": "emem_recall",
       "arguments": {
-        "cell": "damO.zb000.xUti.zde78",
+        "cell": "defi.zb592.nemu.zEvE",
         "bands": [
           "copdem30m.elevation_mean"
         ]
       }
     },
     {
-      "name": "Find similar places",
-      "tool": "emem_find_similar",
+      "name": "Resolve a token to its signed record",
+      "tool": "emem_memory_token_resolve",
       "arguments": {
-        "key": "damO.zb000.xUti.zde78",
-        "band": "geotessera",
-        "k": 5
+        "token": "emem:fact:defi.zb604.zf0e2.hUpU:exhq6lpsjbimxru33wbhvx2rrz72jeecnugpynsber2dxwgrfuea"
       }
     }
   ]

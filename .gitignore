@@ -90,3 +90,7 @@ examples/3d-worlds/out/
 # Agent scratch notes belong in .well-known/agent-notes/, never the repo root.
 /AGENT_*.md
 web/channel.json
+
+# Baked on the node by scripts/build_channel.py every few minutes and read
+# from disk; the binary carries web/channel-fallback.html instead.
+web/channel.html
