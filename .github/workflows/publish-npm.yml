@@ -280,13 +280,21 @@ jobs:
           set -uo pipefail
           NAME=$(node -p "require('./package.json').name")
           VERSION=$(node -p "require('./package.json').version")
-          for attempt in 1 2 3 4 5; do
-            if PUBLISHED=$(npm view "$NAME@$VERSION" version 2>/dev/null) && [ -n "$PUBLISHED" ]; then
+          # 50 s was not enough: on 2026-10-10 the token publish of 2.4.2
+          # succeeded and this step still failed, with the version visible a
+          # few minutes later. Ask the registry document directly as well as
+          # npm view, since npm view can answer from a stale cache.
+          for attempt in $(seq 1 12); do
+            if PUBLISHED=$(npm view "$NAME@$VERSION" version --prefer-online 2>/dev/null) && [ -n "$PUBLISHED" ]; then
               echo "$NAME@$VERSION is on npm"
               exit 0
             fi
-            echo "not visible yet (attempt $attempt); the registry is eventually consistent"
-            sleep 10
+            if curl -fsS -H 'cache-control: no-cache' "https://registry.npmjs.org/$NAME/$VERSION" >/dev/null 2>&1; then
+              echo "$NAME@$VERSION is on the registry"
+              exit 0
+            fi
+            echo "not visible yet (attempt $attempt of 12); the registry is eventually consistent"
+            sleep 30
           done
           echo "::error::$NAME@$VERSION is not on npm after both publish paths. If the OIDC step failed and no NPM_TOKEN secret is set, that is the cause: trusted publishing must be registered for this package on npmjs.com (package Settings -> Publishing access -> add this repository and workflow), or an NPM_TOKEN secret must exist for the fallback. A prior successful publish does NOT imply a trusted publisher is registered."
           exit 1
