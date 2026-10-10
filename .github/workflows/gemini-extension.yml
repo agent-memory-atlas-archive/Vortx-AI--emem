@@ -1,0 +1,56 @@
+name: gemini extension asset
+
+# `gemini extensions install https://github.com/Vortx-AI/emem` installs from the
+# latest release, and without a release asset it falls back to the whole
+# repository (351 MB with history, measured 2026-10-10). A single generic
+# archive holding only the manifest and its context file is what Gemini CLI
+# picks first, so every release carries one.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to attach the asset to, e.g. v2.4.2'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  asset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      # A tag cut before the manifest existed has no root gemini-extension.json;
+      # take both files from the default branch rather than ship an empty asset.
+      - name: fall back to the default branch for the manifest
+        run: |
+          if [ ! -f gemini-extension.json ] || [ ! -f GEMINI.md ]; then
+            git fetch --depth=1 origin "${{ github.event.repository.default_branch }}"
+            git checkout FETCH_HEAD -- gemini-extension.json GEMINI.md
+          fi
+
+      - name: check the manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          m = json.load(open("gemini-extension.json"))
+          assert m["name"] == "emem", m["name"]
+          assert m["mcpServers"]["emem"]["httpUrl"].startswith("https://"), m["mcpServers"]
+          assert m.get("contextFileName") == "GEMINI.md"
+          print("manifest ok:", m["version"])
+          PY
+
+      - name: build and attach the archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          tar -czf emem-gemini-extension.tar.gz gemini-extension.json GEMINI.md
+          tar -tzf emem-gemini-extension.tar.gz
+          gh release upload "$TAG" emem-gemini-extension.tar.gz --clobber
