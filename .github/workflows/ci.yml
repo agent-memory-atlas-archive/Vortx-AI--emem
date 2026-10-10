@@ -534,6 +534,13 @@ jobs:
       # any page's nav is drift, and this reports it.
       - name: one navigation, not seven
         run: python3 scripts/gen_nav.py --check
+
+      # The README's footer says every section above it is one signed tree and
+      # names the index. Any edit without a re-sign makes that false, which
+      # happened on 2026-10-10. The index is posted before the push, so this
+      # has no deploy lag and belongs here rather than in production-truth.
+      - name: the README is the file its footer signed
+        run: python3 scripts/readme_tree_check.py --origin https://emem.dev
       # The ChatGPT submission declares MCP annotations that the server also
       # declares, and they had drifted: the submission called five tools
       # readOnlyHint:true while the server says false, because each can
